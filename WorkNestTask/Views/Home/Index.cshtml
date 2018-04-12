@@ -1,0 +1,77 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+<div id="app">
+    <template v-if="token !== ''">
+        <table cellspacing="5">
+            <thead>
+                <tr>
+                <th v-for="key in columns">{{ key }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="result in results" :class="{editing: result.id == editedTask.id}" v-cloak>
+                    <td>
+                        <div class="view">
+                            {{ result.name }}
+                        </div>
+                        <div class="edit">
+                            <input type="text" v-model="result.name" />
+                        </div>
+                    </td>
+                    <td>{{ result.created | formatDate}}</td>
+                    <td>{{ result.reporter.userName }}</td>
+                    <td>
+                        <div class="view">
+                            {{ result.assign.userName }}
+                        </div>
+                        <div class="edit">
+                            <select v-model="result.assign.id">
+                                <option v-for="user in users" v-bind:value="user.id">{{ user.userName }}</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="view">
+                            {{ result.completed | formatDate }}
+                        </div>
+                        <div class="edit">
+                            <input type="text" v-model="result.completed" />
+                        </div>
+                    </td>
+                    <td>
+                        <div class="view">
+                            <button v-on:click="editTask(result)">Edit</button>
+                        </div>
+                        <div class="edit">
+                            <button v-on:click="updateTask(result)">Save</button>
+                            <button v-on:click="editedTask = { id: NaN }">Cancel</button>
+                        </div>
+                    </td>
+                    <td><button v-on:click="deleteTask(result.id)">Delete</button></td>
+                </tr>
+            </tbody>
+        </table>
+        <br />
+        <p>New Task</p>
+        <label>Name</label>
+        <input placeholder="Endter name" v-model="task.name">
+
+        <label>Assignee</label>
+        <select v-model="task.assigneeId">
+            <option v-for="user in users" :value="user.id">{{ user.userName }}</option>
+        </select>
+
+            <button  v-on:click="addTask">Add</button>
+</template>
+    <template v-else>
+        <label>UserName</label>
+        <input placeholder="Endter UserName" v-model="userName">
+        <label>Password</label>
+        <input placeholder="Endter Password" v-model="password">
+        <button v-on:click="login">Login</button>
+    </template>
+</div>
