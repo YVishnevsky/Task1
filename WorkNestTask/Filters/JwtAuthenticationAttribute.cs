@@ -35,9 +35,10 @@ namespace WorkNestTask.Filters
                 context.Principal = principal;
         }
 
-        private static bool ValidateToken(string token, out string username)
+        private static bool ValidateToken(string token, out string userName, out string userId)
         {
-            username = null;
+            userName = null;
+            userId = null;
 
             var simplePrinciple = JwtManager.GetPrincipal(token);
             var identity = simplePrinciple?.Identity as ClaimsIdentity;
@@ -48,10 +49,10 @@ namespace WorkNestTask.Filters
             if (!identity.IsAuthenticated)
                 return false;
 
-            var usernameClaim = identity.FindFirst(ClaimTypes.Name);
-            username = usernameClaim?.Value;
+            userName = identity.FindFirst(ClaimTypes.Name)?.Value;
+            userId = identity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (string.IsNullOrEmpty(username))
+            if (string.IsNullOrEmpty(userName) && string.IsNullOrEmpty(userId))
                 return false;
 
             // More validate to check whether username exists in system
@@ -61,14 +62,13 @@ namespace WorkNestTask.Filters
 
         protected Task<IPrincipal> AuthenticateJwtToken(string token)
         {
-            string username;
-
-            if (ValidateToken(token, out username))
+            if (ValidateToken(token, out string userName, out string userId))
             {
                 // based on username to get more information from database in order to build local identity
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, username)
+                    new Claim(ClaimTypes.Name, userName),
+                    new Claim(ClaimTypes.NameIdentifier, userId)
                     // Add more claims if needed: Roles, ...
                 };
 
@@ -84,7 +84,7 @@ namespace WorkNestTask.Filters
         public Task ChallengeAsync(HttpAuthenticationChallengeContext context, CancellationToken cancellationToken)
         {
             Challenge(context);
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         private void Challenge(HttpAuthenticationChallengeContext context)

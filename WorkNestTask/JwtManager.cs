@@ -2,6 +2,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
+using WorkNestTask.Models;
 
 namespace WorkNestTask.Jwt
 {
@@ -14,7 +15,7 @@ namespace WorkNestTask.Jwt
         /// </summary>
         private const string Secret = "db3OIsj+BXE9NZDy0t8W3TcNekrF+2d/1sFnWG4HnV8TZY30iTOdtVWJG8abWvB1GlOgJuQZdcF2Luqm/hccMw==";
 
-        public static string GenerateToken(string username, int expireMinutes = 120)
+        public static string GenerateToken(ApplicationUser user, int expireMinutes = 120)
         {
             var symmetricKey = Convert.FromBase64String(Secret);
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -24,7 +25,8 @@ namespace WorkNestTask.Jwt
             {
                 Subject = new ClaimsIdentity(new[]
                         {
-                            new Claim(ClaimTypes.Name, username)
+                            new Claim(ClaimTypes.Name, user.UserName),
+                            new Claim(ClaimTypes.NameIdentifier, user.Id)
                         }),
 
                 Expires = now.AddMinutes(Convert.ToInt32(expireMinutes)),

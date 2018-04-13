@@ -28,7 +28,7 @@ namespace WorkNestTask.Controllers
             var user = await _userManager.FindAsync(signinRequest.UserName, signinRequest.Password);
             if (user != null)
             {
-                string token = JwtManager.GenerateToken(user.UserName);
+                string token = JwtManager.GenerateToken(user);
 
                 return Ok(new { token });
             }

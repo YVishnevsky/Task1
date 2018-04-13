@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Data.Entity;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using WorkNestTask.Filters;
 using WorkNestTask.Models;
 using WorkNestTask.Requests;
+using System.Security.Claims;
 
 namespace WorkNestTask.Controllers
 {
@@ -27,7 +25,7 @@ namespace WorkNestTask.Controllers
         [HttpPost]
         public async Task<IHttpActionResult> AddNew(NewTask taskRequest)
         {
-            string userId = _dbContext.Users.First(u => u.UserName == User.Identity.Name).Id;
+            string userId = ((ClaimsIdentity)User.Identity).Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
             var task = new Models.Task
             {
                 AssigneeId = taskRequest.AssigneeId,
